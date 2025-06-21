@@ -41,29 +41,6 @@ class Stats(commands.Cog):
             embed.add_field(name="Stars", value=str(balance), inline=False)
             await ctx.respond(embed=embed, ephemeral=True)
 
-    @commands.command(name="stats")
-    async def stats_prefix(self, ctx: commands.Context, member: discord.Member | None = None) -> None:
-        """Prefix command for displaying server or user statistics."""
-        if member and not ctx.author.guild_permissions.manage_messages:
-            await ctx.send("You don't have permission to view others' stats.")
-            return
-
-        if member is None:
-            guild = ctx.guild
-            uptime = time.time() - self.bot.start_time
-            embed = discord.Embed(title="Server & Bot Stats")
-            embed.add_field(name="Members", value=str(guild.member_count), inline=False)
-            embed.add_field(name="Channels", value=str(len(guild.channels)), inline=False)
-            embed.add_field(name="Uptime", value=f"{uptime/3600:.2f} hours", inline=False)
-            await ctx.send(embed=embed)
-        else:
-            balance = await get_balance(self.bot.db_path, member.id)
-            embed = discord.Embed(title=f"Stats for {member}")
-            if member.joined_at:
-                joined = discord.utils.format_dt(member.joined_at, 'F')
-                embed.add_field(name="Joined", value=joined, inline=False)
-            embed.add_field(name="Stars", value=str(balance), inline=False)
-            await ctx.send(embed=embed)
 
 
 def setup(bot: commands.Bot) -> None:

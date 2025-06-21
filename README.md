@@ -2,8 +2,8 @@
 
 A modular Discord bot built with PyCord.
 
-All interactions use slash commands or prefix commands with `!`, e.g. `/ping` or `!ping`.
-Use `/help` or `!help` to see a list of commands available to you.
+All interactions use slash commands, e.g. `/ping`.
+Use `/help` to see a list of commands available to you.
 Administrators can enable or disable features using `/settings`.
 
 ## Setup
@@ -19,4 +19,4 @@ Administrators can enable or disable features using `/settings`.
    python -m koko.bot
    ```
 
-When Koko joins a new server it will ask you to run `/setup` to configure a logs channel and command prefix.
+When Koko joins a new server it will ask you to run `/setup` to configure a logs channel and other settings.

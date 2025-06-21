@@ -19,12 +19,6 @@ class Moderation(commands.Cog):
         await ctx.guild.kick(member, reason=reason)
         await ctx.respond(f"Kicked {member} for {reason or 'No reason'}")
 
-    @commands.has_permissions(kick_members=True)
-    @commands.command(name="kick")
-    async def kick_prefix(self, ctx: commands.Context, member: discord.Member, *, reason: str | None = None) -> None:
-        """Kick a member using the prefix command."""
-        await ctx.guild.kick(member, reason=reason)
-        await ctx.send(f"Kicked {member} for {reason or 'No reason'}")
 
     @commands.has_permissions(ban_members=True)
     @commands.slash_command(name="ban", description="Ban a member from the server.")
@@ -33,12 +27,6 @@ class Moderation(commands.Cog):
         await ctx.guild.ban(member, reason=reason)
         await ctx.respond(f"Banned {member} for {reason or 'No reason'}")
 
-    @commands.has_permissions(ban_members=True)
-    @commands.command(name="ban")
-    async def ban_prefix(self, ctx: commands.Context, member: discord.Member, *, reason: str | None = None) -> None:
-        """Ban a member from the server using the prefix command."""
-        await ctx.guild.ban(member, reason=reason)
-        await ctx.send(f"Banned {member} for {reason or 'No reason'}")
 
 
 def setup(bot: commands.Bot) -> None:

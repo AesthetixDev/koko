@@ -47,17 +47,6 @@ class Setup(commands.Cog):
         await set_guild_settings(self.bot.db_path, guild.id, logs_channel_id=logs_channel.id, prefix=prefix)
         await ctx.respond("Setup complete!", ephemeral=True)
 
-    @commands.has_permissions(administrator=True)
-    @commands.command(name="setup")
-    async def setup_prefix(self, ctx: commands.Context, logs_channel: discord.TextChannel | None = None, prefix: str | None = None) -> None:
-        """Prefix command to configure logs channel and prefix."""
-        guild = ctx.guild
-        assert guild
-        if logs_channel is None:
-            overwrites = {guild.default_role: discord.PermissionOverwrite(view_channel=False)}
-            logs_channel = await guild.create_text_channel("koko-logs", overwrites=overwrites)
-        await set_guild_settings(self.bot.db_path, guild.id, logs_channel_id=logs_channel.id, prefix=prefix)
-        await ctx.send("Setup complete!")
 
 
 def setup(bot: commands.Bot) -> None:

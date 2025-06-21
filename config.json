@@ -1,5 +1,4 @@
 {
-  "prefix": "!",
   "db_path": "data/koko.db",
   "settings_path": "data/settings.json"
 }

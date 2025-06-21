@@ -1,2 +1,2 @@
 # koko
-Discord server bot
+A modular Discord server bot that uses PyCord.

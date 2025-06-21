@@ -3,6 +3,7 @@
 A modular Discord bot built with PyCord.
 
 All interactions use slash commands, e.g. `/ping`.
+Use `/help` to see a list of commands available to you.
 
 ## Setup
 

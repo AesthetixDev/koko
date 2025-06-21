@@ -38,6 +38,7 @@ class KokoBot(discord.Bot):
         await self.load_extension("koko.cogs.fun")
         await self.load_extension("koko.cogs.stats")
         await self.load_extension("koko.cogs.economy")
+        await self.load_extension("koko.cogs.help")
 
     async def log(self, message: str) -> None:
         """Send a message to the configured logs channel."""

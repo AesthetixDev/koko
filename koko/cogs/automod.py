@@ -13,7 +13,12 @@ class AutoMod(commands.Cog):
 
     def __init__(self, bot: commands.Bot, config_path: str = "data/automod.json") -> None:
         self.bot = bot
-        self.config = json.loads(Path(config_path).read_text())
+        self.config_path = Path(config_path)
+        self.config = json.loads(self.config_path.read_text())
+
+    def reload_config(self) -> None:
+        """Reload banned words from disk."""
+        self.config = json.loads(self.config_path.read_text())
 
     @commands.Cog.listener()
     async def on_message(self, message) -> None:

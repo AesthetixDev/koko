@@ -12,6 +12,14 @@ from discord.ext import commands
 
 from .db import init_db
 
+FEATURE_COGS: dict[str, str] = {
+    "moderation": "koko.cogs.moderation",
+    "automod": "koko.cogs.automod",
+    "fun": "koko.cogs.fun",
+    "stats": "koko.cogs.stats",
+    "economy": "koko.cogs.economy",
+}
+
 
 class KokoBot(discord.Bot):
     """Custom :class:`discord.Bot` implementation."""
@@ -22,6 +30,8 @@ class KokoBot(discord.Bot):
         super().__init__(command_prefix=self.config.get("prefix", "!"), intents=intents)
         self.db_path = self.config.get("db_path", "data/koko.db")
         self.logs_channel_id: int | None = self.config.get("logs_channel_id")
+        self.settings_path = self.config.get("settings_path", "data/settings.json")
+        self.settings = self._load_settings(self.settings_path)
         self.start_time = time.time()
 
     @staticmethod
@@ -29,16 +39,24 @@ class KokoBot(discord.Bot):
         with open(path, "r", encoding="utf-8") as fp:
             return json.load(fp)
 
+    @staticmethod
+    def _load_settings(path: str) -> dict:
+        if not os.path.exists(path):
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as fp:
+                json.dump({"enabled_cogs": {k: True for k in FEATURE_COGS}}, fp, indent=2)
+        with open(path, "r", encoding="utf-8") as fp:
+            return json.load(fp)
+
     async def setup_hook(self) -> None:
         """Async initialization tasks when the bot starts."""
         await init_db(self.db_path)
         await self.load_extension("koko.cogs.general")
-        await self.load_extension("koko.cogs.moderation")
-        await self.load_extension("koko.cogs.automod")
-        await self.load_extension("koko.cogs.fun")
-        await self.load_extension("koko.cogs.stats")
-        await self.load_extension("koko.cogs.economy")
+        for feature, ext in FEATURE_COGS.items():
+            if self.settings.get("enabled_cogs", {}).get(feature, True):
+                await self.load_extension(ext)
         await self.load_extension("koko.cogs.help")
+        await self.load_extension("koko.cogs.settings")
 
     async def log(self, message: str) -> None:
         """Send a message to the configured logs channel."""

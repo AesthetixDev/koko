@@ -1,5 +1,6 @@
 {
   "prefix": "!",
   "db_path": "data/koko.db",
-  "logs_channel_id": 0
+  "logs_channel_id": 0,
+  "settings_path": "data/settings.json"
 }

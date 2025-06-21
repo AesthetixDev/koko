@@ -1,0 +1,9 @@
+{
+  "enabled_cogs": {
+    "automod": true,
+    "moderation": true,
+    "fun": true,
+    "stats": true,
+    "economy": true
+  }
+}

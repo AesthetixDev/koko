@@ -22,7 +22,7 @@ class Settings(commands.Cog):
     # Slash command group
     settings = commands.SlashCommandGroup("settings", "Manage bot settings")
 
-    async def _set_feature(self, feature: str, enabled: bool) -> None:
+    async def _set_feature(self, ctx: discord.ApplicationContext, feature: str, enabled: bool) -> None:
         self.bot.settings.setdefault("enabled_cogs", {})[feature] = enabled
         self.settings_path.write_text(json.dumps(self.bot.settings, indent=2))
         ext = FEATURE_COGS[feature]
@@ -30,13 +30,13 @@ class Settings(commands.Cog):
             await self.bot.load_extension(ext)
         elif not enabled and ext in self.bot.extensions:
             await self.bot.unload_extension(ext)
-        await self.bot.log(f"Feature {feature} set to {enabled}")
+        await self.bot.log(ctx.guild, f"Feature {feature} set to {enabled}")
 
     @settings.command(name="enable", description="Enable a bot feature.")
     @commands.has_permissions(administrator=True)
     async def enable(self, ctx: discord.ApplicationContext, feature: discord.Option(str, choices=list(FEATURE_COGS.keys()))) -> None:
         """Enable a bot feature."""
-        await self._set_feature(feature, True)
+        await self._set_feature(ctx, feature, True)
         embed = discord.Embed(title="Feature Enabled", description=f"Enabled {feature}.")
         await ctx.respond(embed=embed, ephemeral=True)
 
@@ -44,7 +44,7 @@ class Settings(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def disable(self, ctx: discord.ApplicationContext, feature: discord.Option(str, choices=list(FEATURE_COGS.keys()))) -> None:
         """Disable a bot feature."""
-        await self._set_feature(feature, False)
+        await self._set_feature(ctx, feature, False)
         embed = discord.Embed(title="Feature Disabled", description=f"Disabled {feature}.")
         await ctx.respond(embed=embed, ephemeral=True)
 

@@ -10,7 +10,7 @@ import time
 import discord
 from discord.ext import commands
 
-from .db import init_db
+from .db import init_db, get_guild_settings
 
 FEATURE_COGS: dict[str, str] = {
     "moderation": "koko.cogs.moderation",
@@ -29,7 +29,6 @@ class KokoBot(discord.Bot):
         intents = discord.Intents.all()
         super().__init__(command_prefix=self.config.get("prefix", "!"), intents=intents)
         self.db_path = self.config.get("db_path", "data/koko.db")
-        self.logs_channel_id: int | None = self.config.get("logs_channel_id")
         self.settings_path = self.config.get("settings_path", "data/settings.json")
         self.settings = self._load_settings(self.settings_path)
         self.start_time = time.time()
@@ -57,12 +56,17 @@ class KokoBot(discord.Bot):
                 await self.load_extension(ext)
         await self.load_extension("koko.cogs.help")
         await self.load_extension("koko.cogs.settings")
+        await self.load_extension("koko.cogs.setup")
 
-    async def log(self, message: str) -> None:
-        """Send a message to the configured logs channel."""
-        if not self.logs_channel_id:
+    async def log(self, guild: discord.Guild | None, message: str) -> None:
+        """Send ``message`` to the guild's configured logs channel."""
+        if not guild:
             return
-        channel = self.get_channel(self.logs_channel_id)
+        settings = await get_guild_settings(self.db_path, guild.id)
+        channel_id = settings.get("logs_channel_id")
+        if not channel_id:
+            return
+        channel = guild.get_channel(channel_id)
         if channel:
             await channel.send(message)
 

@@ -47,7 +47,7 @@ class Economy(commands.Cog):
         await update_balance(self.bot.db_path, ctx.author.id, DAILY_AMOUNT)
         await set_last_daily(self.bot.db_path, ctx.author.id, now)
         await ctx.respond(f"You claimed {DAILY_AMOUNT} ✭!", ephemeral=True)
-        await self.bot.log(f"{ctx.author} claimed daily stars")
+        await self.bot.log(ctx.guild, f"{ctx.author} claimed daily stars")
 
     @commands.slash_command(name="transfer", description="Transfer Stars to another user.")
     async def transfer(self, ctx: discord.ApplicationContext, member: discord.Member, amount: commands.Range[int, 1]) -> None:
@@ -59,7 +59,7 @@ class Economy(commands.Cog):
         await update_balance(self.bot.db_path, ctx.author.id, -amount)
         await update_balance(self.bot.db_path, member.id, amount)
         await ctx.respond(f"Transferred {amount} ✭ to {member.display_name}.", ephemeral=True)
-        await self.bot.log(f"{ctx.author} sent {amount} stars to {member}")
+        await self.bot.log(ctx.guild, f"{ctx.author} sent {amount} stars to {member}")
 
     @commands.has_permissions(administrator=True)
     @commands.slash_command(name="addstars", description="Add Stars to a user.")
@@ -67,7 +67,7 @@ class Economy(commands.Cog):
         """Manually add Stars to a user's balance."""
         await update_balance(self.bot.db_path, member.id, amount)
         await ctx.respond(f"Added {amount} ✭ to {member.display_name}.", ephemeral=True)
-        await self.bot.log(f"{ctx.author} added {amount} stars to {member}")
+        await self.bot.log(ctx.guild, f"{ctx.author} added {amount} stars to {member}")
 
     @commands.has_permissions(administrator=True)
     @commands.slash_command(name="removestars", description="Remove Stars from a user.")
@@ -75,7 +75,7 @@ class Economy(commands.Cog):
         """Manually remove Stars from a user's balance."""
         await update_balance(self.bot.db_path, member.id, -amount)
         await ctx.respond(f"Removed {amount} ✭ from {member.display_name}.", ephemeral=True)
-        await self.bot.log(f"{ctx.author} removed {amount} stars from {member}")
+        await self.bot.log(ctx.guild, f"{ctx.author} removed {amount} stars from {member}")
 
     @commands.slash_command(name="leaderboard", description="Top users by Stars.")
     async def leaderboard(self, ctx: discord.ApplicationContext) -> None:

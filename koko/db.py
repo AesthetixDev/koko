@@ -39,6 +39,13 @@ async def init_db(path: str) -> None:
                 last_daily REAL DEFAULT 0
             )"""
         )
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS guild_settings (
+                guild_id INTEGER PRIMARY KEY,
+                logs_channel_id INTEGER,
+                prefix TEXT DEFAULT '!'
+            )"""
+        )
 
 
 async def _ensure_user(db: aiosqlite.Connection, user_id: int) -> None:
@@ -91,4 +98,49 @@ async def set_last_daily(path: str, user_id: int, ts: float) -> None:
             "UPDATE economy SET last_daily = ? WHERE user_id = ?",
             (ts, user_id),
         )
+
+
+async def _ensure_guild(db: aiosqlite.Connection, guild_id: int) -> None:
+    """Ensure a row exists for a guild in the guild_settings table."""
+    await db.execute(
+        "INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)",
+        (guild_id,),
+    )
+
+
+async def get_guild_settings(path: str, guild_id: int) -> dict:
+    """Return configuration for a guild."""
+    async with DBManager(path) as db:
+        await _ensure_guild(db, guild_id)
+        cursor = await db.execute(
+            "SELECT logs_channel_id, prefix FROM guild_settings WHERE guild_id = ?",
+            (guild_id,),
+        )
+        row = await cursor.fetchone()
+        return {
+            "logs_channel_id": row[0],
+            "prefix": row[1] or "!",
+        }
+
+
+async def set_guild_settings(
+    path: str,
+    guild_id: int,
+    *,
+    logs_channel_id: int | None = None,
+    prefix: str | None = None,
+) -> None:
+    """Update configuration values for a guild."""
+    async with DBManager(path) as db:
+        await _ensure_guild(db, guild_id)
+        if logs_channel_id is not None:
+            await db.execute(
+                "UPDATE guild_settings SET logs_channel_id = ? WHERE guild_id = ?",
+                (logs_channel_id, guild_id),
+            )
+        if prefix is not None:
+            await db.execute(
+                "UPDATE guild_settings SET prefix = ? WHERE guild_id = ?",
+                (prefix, guild_id),
+            )
 

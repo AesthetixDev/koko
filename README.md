@@ -13,9 +13,10 @@ Administrators can enable or disable features using `/settings`.
    pip install -r requirements.txt
    ```
 2. Set the `DISCORD_TOKEN` environment variable with your bot token.
-3. Optionally configure `logs_channel_id` in `config.json` to enable action logging.
-4. Optionally adjust `settings_path` to control where feature toggles are stored.
-5. Run the bot:
+3. Optionally adjust `settings_path` to control where feature toggles are stored.
+4. Run the bot:
    ```bash
    python -m koko.bot
    ```
+
+When Koko joins a new server it will ask you to run `/setup` to configure a logs channel and command prefix.

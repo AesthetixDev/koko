@@ -15,10 +15,16 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(name="roll", description="Roll a six-sided die.")
-    async def roll(self, ctx: discord.ApplicationContext) -> None:
-        """Reply with a random number between 1 and 6."""
+    async def roll_slash(self, ctx: discord.ApplicationContext) -> None:
+        """Reply with a random number between 1 and 6 via slash command."""
         result = random.randint(1, 6)
         await ctx.respond(f"You rolled **{result}**")
+
+    @commands.command(name="roll")
+    async def roll_prefix(self, ctx: commands.Context) -> None:
+        """Prefix command to roll a die."""
+        result = random.randint(1, 6)
+        await ctx.send(f"You rolled **{result}**")
 
 
 def setup(bot: commands.Bot) -> None:

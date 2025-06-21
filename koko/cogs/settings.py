@@ -35,18 +35,38 @@ class Settings(commands.Cog):
     @settings.command(name="enable", description="Enable a bot feature.")
     @commands.has_permissions(administrator=True)
     async def enable(self, ctx: discord.ApplicationContext, feature: discord.Option(str, choices=list(FEATURE_COGS.keys()))) -> None:
-        """Enable a bot feature."""
+        """Enable a bot feature via slash command."""
         await self._set_feature(ctx, feature, True)
         embed = discord.Embed(title="Feature Enabled", description=f"Enabled {feature}.")
         await ctx.respond(embed=embed, ephemeral=True)
 
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="enable")
+    async def enable_prefix(self, ctx: commands.Context, feature: str) -> None:
+        """Prefix command to enable a feature."""
+        if feature not in FEATURE_COGS:
+            await ctx.send("Unknown feature.")
+            return
+        await self._set_feature(ctx, feature, True)
+        await ctx.send(f"Enabled {feature}.")
+
     @settings.command(name="disable", description="Disable a bot feature.")
     @commands.has_permissions(administrator=True)
     async def disable(self, ctx: discord.ApplicationContext, feature: discord.Option(str, choices=list(FEATURE_COGS.keys()))) -> None:
-        """Disable a bot feature."""
+        """Disable a bot feature via slash command."""
         await self._set_feature(ctx, feature, False)
         embed = discord.Embed(title="Feature Disabled", description=f"Disabled {feature}.")
         await ctx.respond(embed=embed, ephemeral=True)
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="disable")
+    async def disable_prefix(self, ctx: commands.Context, feature: str) -> None:
+        """Prefix command to disable a feature."""
+        if feature not in FEATURE_COGS:
+            await ctx.send("Unknown feature.")
+            return
+        await self._set_feature(ctx, feature, False)
+        await ctx.send(f"Disabled {feature}.")
 
     def _load_bad_words(self) -> dict:
         return json.loads(self.bad_words_path.read_text())
@@ -57,7 +77,7 @@ class Settings(commands.Cog):
     @settings.command(name="add_bad_word", description="Add a word to the language filter.")
     @commands.has_permissions(administrator=True)
     async def add_bad_word(self, ctx: discord.ApplicationContext, word: str) -> None:
-        """Add a banned word to the automod filter."""
+        """Add a banned word to the automod filter via slash command."""
         config = self._load_bad_words()
         words = config.setdefault("banned_words", [])
         if word.lower() not in words:
@@ -71,10 +91,26 @@ class Settings(commands.Cog):
             embed = discord.Embed(title="Word Exists", description=f"`{word}` is already banned.")
         await ctx.respond(embed=embed, ephemeral=True)
 
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="add_bad_word")
+    async def add_bad_word_prefix(self, ctx: commands.Context, word: str) -> None:
+        """Prefix command to add a banned word."""
+        config = self._load_bad_words()
+        words = config.setdefault("banned_words", [])
+        if word.lower() not in words:
+            words.append(word.lower())
+            self._save_bad_words(config)
+            automod = self.bot.get_cog("AutoMod")
+            if automod:
+                automod.reload_config()
+            await ctx.send(f"Added `{word}` to filter.")
+        else:
+            await ctx.send(f"`{word}` is already banned.")
+
     @settings.command(name="remove_bad_word", description="Remove a word from the language filter.")
     @commands.has_permissions(administrator=True)
     async def remove_bad_word(self, ctx: discord.ApplicationContext, word: str) -> None:
-        """Remove a banned word from the automod filter."""
+        """Remove a banned word from the automod filter via slash command."""
         config = self._load_bad_words()
         words = config.setdefault("banned_words", [])
         if word.lower() in words:
@@ -87,6 +123,22 @@ class Settings(commands.Cog):
         else:
             embed = discord.Embed(title="Not Found", description=f"`{word}` is not in the filter.")
         await ctx.respond(embed=embed, ephemeral=True)
+
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="remove_bad_word")
+    async def remove_bad_word_prefix(self, ctx: commands.Context, word: str) -> None:
+        """Prefix command to remove a banned word."""
+        config = self._load_bad_words()
+        words = config.setdefault("banned_words", [])
+        if word.lower() in words:
+            words.remove(word.lower())
+            self._save_bad_words(config)
+            automod = self.bot.get_cog("AutoMod")
+            if automod:
+                automod.reload_config()
+            await ctx.send(f"Removed `{word}` from filter.")
+        else:
+            await ctx.send(f"`{word}` is not in the filter.")
 
 
 def setup(bot: commands.Bot) -> None:

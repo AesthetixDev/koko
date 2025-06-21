@@ -19,8 +19,8 @@ class Help(commands.Cog):
         return f"/{cmd.qualified_name} {params}".strip()
 
     @commands.slash_command(name="help", description="Show available commands.")
-    async def help(self, ctx: discord.ApplicationContext) -> None:
-        """Send an ephemeral embed of commands the user can run."""
+    async def help_slash(self, ctx: discord.ApplicationContext) -> None:
+        """Send an ephemeral embed of commands the user can run via slash command."""
         categories: dict[str, list[str]] = {}
         for cmd in self.bot.walk_application_commands():
             if not isinstance(cmd, commands.InvokableApplicationCommand):
@@ -38,6 +38,27 @@ class Help(commands.Cog):
             lines = sorted(categories[cat])
             embed.add_field(name=cat, value="\n".join(lines), inline=False)
         await ctx.respond(embed=embed, ephemeral=True)
+
+    @commands.command(name="help")
+    async def help_prefix(self, ctx: commands.Context) -> None:
+        """Prefix command to show available commands."""
+        categories: dict[str, list[str]] = {}
+        for cmd in self.bot.walk_application_commands():
+            if not isinstance(cmd, commands.InvokableApplicationCommand):
+                continue
+            try:
+                if not await cmd._can_run(ctx):
+                    continue
+            except Exception:
+                continue
+            usage = f"{self._format_usage(cmd)} - {cmd.description}"
+            cat = cmd.cog_name or "Other"
+            categories.setdefault(cat, []).append(usage)
+        embed = discord.Embed(title="Available Commands")
+        for cat in sorted(categories):
+            lines = sorted(categories[cat])
+            embed.add_field(name=cat, value="\n".join(lines), inline=False)
+        await ctx.send(embed=embed)
 
 
 def setup(bot: commands.Bot) -> None:

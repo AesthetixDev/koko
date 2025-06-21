@@ -17,6 +17,7 @@ class Setup(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild) -> None:
+        await self.bot.sync_commands(guild_ids=[guild.id])
         channel = discord.utils.get(guild.text_channels, name="general")
         if not channel or not channel.permissions_for(guild.me).send_messages:
             channel = next(

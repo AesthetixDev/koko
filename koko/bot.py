@@ -84,8 +84,7 @@ async def main() -> None:
         raise RuntimeError("DISCORD_TOKEN environment variable is not set")
 
     bot = KokoBot()
-    async with bot:
-        await bot.start(token)
+    await bot.start(token)
 
 
 if __name__ == "__main__":

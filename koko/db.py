@@ -32,4 +32,63 @@ async def init_db(path: str) -> None:
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )"""
         )
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS economy (
+                user_id INTEGER PRIMARY KEY,
+                stars INTEGER DEFAULT 0,
+                last_daily REAL DEFAULT 0
+            )"""
+        )
+
+
+async def _ensure_user(db: aiosqlite.Connection, user_id: int) -> None:
+    """Ensure a row exists for a user in the economy table."""
+    await db.execute(
+        "INSERT OR IGNORE INTO economy (user_id) VALUES (?)",
+        (user_id,),
+    )
+
+
+async def get_balance(path: str, user_id: int) -> int:
+    """Return a user's star balance."""
+    async with DBManager(path) as db:
+        await _ensure_user(db, user_id)
+        cursor = await db.execute(
+            "SELECT stars FROM economy WHERE user_id = ?",
+            (user_id,),
+        )
+        row = await cursor.fetchone()
+        return row[0] if row else 0
+
+
+async def update_balance(path: str, user_id: int, delta: int) -> None:
+    """Modify a user's star balance by ``delta``."""
+    async with DBManager(path) as db:
+        await _ensure_user(db, user_id)
+        await db.execute(
+            "UPDATE economy SET stars = stars + ? WHERE user_id = ?",
+            (delta, user_id),
+        )
+
+
+async def get_last_daily(path: str, user_id: int) -> float:
+    """Return the timestamp of the user's last daily claim."""
+    async with DBManager(path) as db:
+        await _ensure_user(db, user_id)
+        cursor = await db.execute(
+            "SELECT last_daily FROM economy WHERE user_id = ?",
+            (user_id,),
+        )
+        row = await cursor.fetchone()
+        return row[0] if row else 0
+
+
+async def set_last_daily(path: str, user_id: int, ts: float) -> None:
+    """Update the last daily claim timestamp for a user."""
+    async with DBManager(path) as db:
+        await _ensure_user(db, user_id)
+        await db.execute(
+            "UPDATE economy SET last_daily = ? WHERE user_id = ?",
+            (ts, user_id),
+        )
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import time
 
 import discord
 from discord.ext import commands
@@ -20,6 +21,8 @@ class KokoBot(discord.Bot):
         intents = discord.Intents.all()
         super().__init__(command_prefix=self.config.get("prefix", "!"), intents=intents)
         self.db_path = self.config.get("db_path", "data/koko.db")
+        self.logs_channel_id: int | None = self.config.get("logs_channel_id")
+        self.start_time = time.time()
 
     @staticmethod
     def _load_config(path: str) -> dict:
@@ -32,6 +35,17 @@ class KokoBot(discord.Bot):
         await self.load_extension("koko.cogs.general")
         await self.load_extension("koko.cogs.moderation")
         await self.load_extension("koko.cogs.automod")
+        await self.load_extension("koko.cogs.fun")
+        await self.load_extension("koko.cogs.stats")
+        await self.load_extension("koko.cogs.economy")
+
+    async def log(self, message: str) -> None:
+        """Send a message to the configured logs channel."""
+        if not self.logs_channel_id:
+            return
+        channel = self.get_channel(self.logs_channel_id)
+        if channel:
+            await channel.send(message)
 
 
 async def main() -> None:

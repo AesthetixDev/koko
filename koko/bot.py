@@ -33,6 +33,10 @@ class KokoBot(discord.Bot):
         self.settings = self._load_settings(self.settings_path)
         self.start_time = time.time()
 
+    async def on_ready(self) -> None:
+        """Log a message when the bot is ready."""
+        print(f"Koko has been initialized as {self.user} (ID: {self.user.id})")
+
     @staticmethod
     def _load_config(path: str) -> dict:
         with open(path, "r", encoding="utf-8") as fp:
@@ -57,6 +61,8 @@ class KokoBot(discord.Bot):
         await self.load_extension("koko.cogs.help")
         await self.load_extension("koko.cogs.settings")
         await self.load_extension("koko.cogs.setup")
+        # ensure slash commands are registered
+        await self.sync_commands()
 
     async def log(self, guild: discord.Guild | None, message: str) -> None:
         """Send ``message`` to the guild's configured logs channel."""

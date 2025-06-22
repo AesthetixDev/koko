@@ -13,9 +13,9 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game("hello world"))
     print("Status set to 'hello world'")
 
-@bot.tree.command(name="hello", description="Say hello")
-async def hello(interaction: discord.Interaction):
-    await interaction.response.send_message("Hello!")
+@bot.hybrid_command(name="hello", with_app_command=True, description="Say hello")
+async def hello(ctx: commands.Context):
+    await ctx.send("Hello!")
 
 async def main():
     token = os.getenv("DISCORD_TOKEN")

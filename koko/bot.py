@@ -55,6 +55,7 @@ class KokoBot(discord.Bot):
         """Async initialization tasks when the bot starts."""
         await init_db(self.db_path)
         await self.load_extension("koko.cogs.general")
+        await self.load_extension("koko.cogs.logger")
         for feature, ext in FEATURE_COGS.items():
             if self.settings.get("enabled_cogs", {}).get(feature, True):
                 await self.load_extension(ext)

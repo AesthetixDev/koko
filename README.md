@@ -8,6 +8,8 @@ Administrators can enable or disable features using `/settings`.
 
 Every message received by the bot is printed to the console in the format
 `[#channel] (timestamp) username: message` to aid debugging.
+Koko also prints a short note explaining how events can be registered each time
+a message is received.
 
 ## Setup
 

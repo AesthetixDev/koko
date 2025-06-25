@@ -37,6 +37,18 @@ class KokoBot(discord.Bot):
         """Log a message when the bot is ready."""
         print(f"Koko has been initialized as {self.user} (ID: {self.user.id})")
 
+    async def on_message(self, message: discord.Message) -> None:
+        """Print a documentation snippet for each received message."""
+        if message.author == self.user:
+            return
+        print(
+            "There are 3 ways to register an event, the first way is through the"
+            " use of Client.event(). The second way is through subclassing Client"
+            " and overriding the specific events. The third way is through the use"
+            " of Client.listen(), which can be used to assign multiple event"
+            " handlers instead of only one like in Client.event()."
+        )
+
     @staticmethod
     def _load_config(path: str) -> dict:
         with open(path, "r", encoding="utf-8") as fp:

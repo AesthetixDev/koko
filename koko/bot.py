@@ -55,6 +55,7 @@ class KokoBot(commands.Bot):
             " of Client.listen(), which can be used to assign multiple event"
             " handlers instead of only one like in Client.event()."
         )
+        await self.process_commands(message)
 
     @staticmethod
     def _load_config(path: str) -> dict:

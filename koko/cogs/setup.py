@@ -36,16 +36,34 @@ class Setup(commands.Cog):
                 pass
 
     @commands.has_permissions(administrator=True)
+    @commands.command(name="setup")
+    async def setup_cmd(self, ctx: commands.Context, logs_channel: discord.TextChannel | None = None, prefix: str | None = None) -> None:
+        """Configure logs channel and command prefix via prefixed command."""
+        await self._do_setup(ctx, logs_channel, prefix)
+
+    @commands.has_permissions(administrator=True)
     @commands.slash_command(name="setup", description="Configure Koko for this server.")
     async def setup_slash(self, ctx: discord.ApplicationContext, logs_channel: discord.TextChannel | None = None, prefix: str | None = None) -> None:
         """Configure logs channel and command prefix using a slash command."""
+        await self._do_setup(ctx, logs_channel, prefix)
+
+    async def _do_setup(
+        self,
+        ctx: discord.abc.Messageable,
+        logs_channel: discord.TextChannel | None,
+        prefix: str | None,
+    ) -> None:
+        """Shared setup implementation."""
         guild = ctx.guild
         assert guild
         if logs_channel is None:
             overwrites = {guild.default_role: discord.PermissionOverwrite(view_channel=False)}
             logs_channel = await guild.create_text_channel("koko-logs", overwrites=overwrites)
         await set_guild_settings(self.bot.db_path, guild.id, logs_channel_id=logs_channel.id, prefix=prefix)
-        await ctx.respond("Setup complete!", ephemeral=True)
+        if isinstance(ctx, discord.ApplicationContext):
+            await ctx.respond("Setup complete!", ephemeral=True)
+        else:
+            await ctx.send("Setup complete!")
 
 
 

@@ -21,17 +21,24 @@ FEATURE_COGS: dict[str, str] = {
 }
 
 
-class KokoBot(discord.Bot):
-    """Custom :class:`discord.Bot` implementation."""
+class KokoBot(commands.Bot):
+    """Custom :class:`commands.Bot` implementation supporting slash and prefix commands."""
 
     def __init__(self, *, config_path: str = "config.json") -> None:
         self.config = self._load_config(config_path)
         intents = discord.Intents.all()
-        super().__init__(intents=intents)
+        super().__init__(command_prefix=self._get_prefix, intents=intents)
         self.db_path = self.config.get("db_path", "data/koko.db")
         self.settings_path = self.config.get("settings_path", "data/settings.json")
         self.settings = self._load_settings(self.settings_path)
         self.start_time = time.time()
+
+    async def _get_prefix(self, bot: commands.Bot, message: discord.Message) -> str:
+        """Return the command prefix for ``message`` guild."""
+        if message.guild is None:
+            return "!"
+        settings = await get_guild_settings(self.db_path, message.guild.id)
+        return settings.get("prefix", "!")
 
     async def on_ready(self) -> None:
         """Log a message when the bot is ready."""

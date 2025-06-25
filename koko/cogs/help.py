@@ -7,7 +7,7 @@ from discord.ext import commands
 
 
 class Help(commands.Cog):
-    """Provide a slash command listing available bot commands."""
+    """Provide help commands listing available bot commands."""
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -18,9 +18,18 @@ class Help(commands.Cog):
         params = " ".join(f"<{opt.name}>" for opt in options)
         return f"/{cmd.qualified_name} {params}".strip()
 
+    @commands.command(name="help")
+    async def help_cmd(self, ctx: commands.Context) -> None:
+        """Display commands available to the invoking user via prefix."""
+        await self._send_help(ctx, ctx.send)
+
     @commands.slash_command(name="help", description="Show available commands.")
     async def help_slash(self, ctx: discord.ApplicationContext) -> None:
         """Send an ephemeral embed of commands the user can run via slash command."""
+        await self._send_help(ctx, ctx.respond)
+
+    async def _send_help(self, ctx: commands.Context | discord.ApplicationContext, responder) -> None:
+        """Collect commands and send an embed via ``responder``."""
         categories: dict[str, list[str]] = {}
         for cmd in self.bot.walk_application_commands():
             if not isinstance(cmd, commands.InvokableApplicationCommand):
@@ -37,7 +46,10 @@ class Help(commands.Cog):
         for cat in sorted(categories):
             lines = sorted(categories[cat])
             embed.add_field(name=cat, value="\n".join(lines), inline=False)
-        await ctx.respond(embed=embed, ephemeral=True)
+        if isinstance(ctx, discord.ApplicationContext):
+            await responder(embed=embed, ephemeral=True)
+        else:
+            await responder(embed=embed)
 
 
 

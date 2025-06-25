@@ -2,9 +2,10 @@
 
 A modular Discord bot built with PyCord.
 
-All interactions use slash commands, e.g. `/ping`.
-Use `/help` to see a list of commands available to you.
-Administrators can enable or disable features using `/settings`.
+Commands can be invoked either with the `!` prefix or via slash commands,
+e.g. `!ping` or `/ping`.
+Use `!help` or `/help` to see a list of commands available to you.
+Administrators can enable or disable features using `!settings` or `/settings`.
 
 Every message received by the bot is printed to the console in the format
 `[#channel] (timestamp) username: message` to aid debugging.

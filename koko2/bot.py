@@ -90,4 +90,4 @@ for filename in os.listdir(r"cogs"):
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 token = os.getenv("DISCORD_TOKEN")
-bot.run("TOKEN")
+bot.run(token)
